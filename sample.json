@@ -1,0 +1,20 @@
+{
+  "structure": {
+    "title": "Important message",
+    "body": "Hi ${name}! How are you?"
+  },
+  "users": [
+    {
+      "emails": [
+        "firstname.initial@domain.com"
+      ],
+      "name": "Jennifer"
+    },
+    {
+      "emails": [
+        "firstname.initial@domain.com"
+      ],
+      "name": "John"
+    }
+  ]
+}
