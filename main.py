@@ -15,7 +15,7 @@ def create_schema(filename):
     example_schema = json.load(open('sample.json'))
   except FileNotFoundError:
     error('"sample.json" file is missing', 1)
-  except json.decoder.JSONDecodeError:
+  except ValueError:
     error('"sample.json" file is incorrect', 1)
 
   with open(filename, 'w') as outfile:
@@ -78,13 +78,22 @@ def update_string(old_str, user, indexes):
   }
 
 
+def is_email_correct(email):
+  pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+  if re.fullmatch(pattern, email):
+    return True
+  
+  return False
+
+
 def convert_json(filename):
   try:
-    file = open('data.json')
+    file = open(filename)
     data = json.load(file)
 
     invalids = []
     completed_data = []
+    are_emails_correct = True
 
     title = data["structure"]["title"]
     body = data["structure"]["body"]
@@ -92,6 +101,10 @@ def convert_json(filename):
     body_indexes = [(m.start(0), m.end(0)) for m in re.finditer('\${(.+?)}', body)]
 
     for user in data["users"]:
+      for email in user["emails"]:
+        if not is_email_correct(email) and are_emails_correct:
+          are_emails_correct = False
+
       title_data = update_string(title, user, title_indexes)
       invalids += title_data["invalids"]
 
@@ -103,6 +116,9 @@ def convert_json(filename):
         "title": title_data["text"],
         "body": body_data["text"]
       })
+
+    if not are_emails_correct:
+      error('some emails are incorrect', 1)
     
     if invalids:
       error_value = filename + " file data is invalid. Make sure "
